@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Theme Variables ---------- */
+
+:root{
+  --bg:#f6f5f1;
+  --card:#ffffff;
+  --text:#12141a;
+  --muted:#555;
+  --accent:#e2b13c;
+  --border:#dddddd;
+}
+
+/* ---------- Themes ---------- */
+
+[data-theme="light"]{
+  --bg:#f6f5f1;
+  --card:#ffffff;
+  --text:#12141a;
+  --muted:#555;
+  --accent:#e2b13c;
+  --border:#dddddd;
+}
+
+[data-theme="dark"]{
+  --bg:#111827;
+  --card:#1f2937;
+  --text:#f8fafc;
+  --muted:#cbd5e1;
+  --accent:#f59e0b;
+  --border:#374151;
+}
+
+[data-theme="ocean"]{
+  --bg:#07131f;
+  --card:#0f2437;
+  --text:#ecfeff;
+  --muted:#b6d8df;
+  --accent:#38bdf8;
+  --border:#164e63;
+}
+
+[data-theme="emerald"]{
+  --bg:#071b12;
+  --card:#123524;
+  --text:#ecfdf5;
+  --muted:#bbf7d0;
+  --accent:#22c55e;
+  --border:#166534;
+}
+
+[data-theme="purple"]{
+  --bg:#170926;
+  --card:#2d1247;
+  --text:#faf5ff;
+  --muted:#d8b4fe;
+  --accent:#a855f7;
+  --border:#6b21a8;
+}
+
+[data-theme="sunset"]{
+  --bg:#2a1206;
+  --card:#44210b;
+  --text:#fff7ed;
+  --muted:#fed7aa;
+  --accent:#f97316;
+  --border:#9a3412;
+}
+
+[data-theme="rose"]{
+  --bg:#2b0b17;
+  --card:#481525;
+  --text:#fff1f2;
+  --muted:#fecdd3;
+  --accent:#ec4899;
+  --border:#9d174d;
+}
+
+[data-theme="oled"]{
+  --bg:#000000;
+  --card:#090909;
+  --text:#ffffff;
+  --muted:#bdbdbd;
+  --accent:#22d3ee;
+  --border:#222;
+}
+
+/* ---------- Global ---------- */
+
+html,
+body,
+#root{
+
+  min-height:100%;
+}
+
+body{
+
+  margin:0;
+
+  background:var(--bg);
+
+  color:var(--text);
+
+  font-family:'Inter',system-ui,sans-serif;
+
+  transition:
+      background .35s ease,
+      color .35s ease;
+}
+
+*{
+
+  transition:
+      background-color .35s,
+      color .35s,
+      border-color .35s,
+      box-shadow .35s;
+}
+
+/* ---------- Utility Classes ---------- */
+
+.theme-bg{
+  background:var(--bg);
+}
+
+.theme-card{
+  background:var(--card);
+}
+
+.theme-text{
+  color:var(--text);
+}
+
+.theme-muted{
+  color:var(--muted);
+}
+
+.theme-border{
+  border-color:var(--border);
+}
+
+.theme-accent{
+
+  color:var(--accent);
+}
+
+.theme-button{
+
+  background:var(--accent);
+
+  color:white;
+}
+
+.theme-glass{
+
+  background:rgba(255,255,255,.08);
+
+  backdrop-filter:blur(18px);
+
+  border:1px solid rgba(255,255,255,.12);
+}
