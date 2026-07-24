@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { FaHeart } from "react-icons/fa"
 
 // ---------- TMDB API helpers ----------
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY
@@ -10,7 +11,7 @@ const BLOCKED_CERTIFICATIONS = ['R', 'NC-17', '18', '18A']
 const BLOCKED_WORDS = [
   "sex", "sexual", "erotic", "porn", "nude", "nudity", "strip",
   "escort", "prostitute", "brothel", "xxx", "fetish", "bdsm", "hot",
-  "orgy", "incest", "affair", "mistress", "seduction", "seduce"
+  "orgy", "incest", "affair", "mistress", "seduction", "seduce", "heart", "ghost"
 ]
 
 const THEMES = ["light", "dark", "ocean", "emerald", "purple", "sunset", "rose", "oled"]
@@ -58,7 +59,17 @@ export default function App() {
   const [activeMovie, setActiveMovie] = useState(null)
 
   const [showSettings, setShowSettings] = useState(false)
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light")
+const [showFavorites, setShowFavorites] = useState(false)
+
+const [theme, setTheme] = useState(localStorage.getItem("theme") || "light")
+
+const [favorites, setFavorites] = useState(() => {
+  const saved = localStorage.getItem("favorites")
+  return saved ? JSON.parse(saved) : []
+})
+
+const favoritesRef = useRef(null);
+const settingsRef = useRef(null);
 
   // Load genre list once
   useEffect(() => {
@@ -66,6 +77,33 @@ export default function App() {
       setGenres(d.genres.filter((g) => g.name !== 'Romance'))
     )
   }, [])
+
+  useEffect(() => {
+  function handleClickOutside(e) {
+    if (
+      favoritesRef.current &&
+      !favoritesRef.current.contains(e.target)
+    ) {
+      setShowFavorites(false);
+    }
+
+    if (
+      settingsRef.current &&
+      !settingsRef.current.contains(e.target)
+    ) {
+      setShowSettings(false);
+    }
+  }
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () =>
+    document.removeEventListener("mousedown", handleClickOutside);
+}, []);
+
+  useEffect(() => {
+  localStorage.setItem("favorites", JSON.stringify(favorites))
+}, [favorites])
 
   // Debounced autocomplete search
   useEffect(() => {
@@ -140,26 +178,129 @@ export default function App() {
     )
   }
 
+  function toggleFavorite(movie) {
+  setFavorites(prev => {
+    const exists = prev.find(f => f.id === movie.id)
+
+    if (exists) {
+      return prev.filter(f => f.id !== movie.id)
+    }
+
+    return [...prev, movie]
+  })
+}
+
   return (
     <div className="theme-bg theme-text min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-8">
 
         {/* Header row: title + settings gear */}
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="font-display text-6xl tracking-wide">ENetflix</h1>
+  <h1 className="font-display text-6xl tracking-wide">
+    ENetflix
+  </h1>
 
-          <button
-            onClick={() => setShowSettings((s) => !s)}
-            aria-label="Open theme settings"
-            className="theme-card theme-border flex h-11 w-11 items-center justify-center rounded-full border shadow-sm hover:opacity-80"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-          </button>
+  <div className="flex items-center gap-3">
+
+    {/* Favorites */}
+    <div className="relative" ref={favoritesRef}>
+
+      <button
+        onClick={() => setShowFavorites(!showFavorites)}
+        className="theme-card theme-border relative flex h-11 w-11 items-center justify-center rounded-full border shadow-sm hover:opacity-80"
+      >
+        <FaHeart
+          className={`text-xl ${
+            favorites.length ? "text-red-500" : "text-gray-400"
+          }`}
+        />
+
+        {favorites.length > 0 && (
+          <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+            {favorites.length}
+          </span>
+        )}
+      </button>
+
+      {showFavorites && (
+        <div className="theme-card theme-border absolute right-0 mt-3 w-80 rounded-xl border p-4 shadow-2xl z-50">
+
+          <h2 className="mb-3 text-lg font-semibold">
+            ❤️ Your Favorites
+          </h2>
+
+          {favorites.length === 0 ? (
+
+            <p className="theme-muted text-sm">
+              No favorite movies yet.
+            </p>
+
+          ) : (
+
+            <div className="grid grid-cols-3 gap-3">
+
+              {favorites.map(movie => (
+
+  <div key={movie.id} className="relative">
+
+    <img
+      src={posterUrl(movie.poster_path)}
+      alt={movie.title}
+      title={movie.title}
+      className="rounded-lg cursor-pointer hover:scale-105 transition"
+      onClick={() => openMovie(movie.id)}
+    />
+
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        toggleFavorite(movie);
+      }}
+      className="absolute top-1 right-1"
+    >
+      <FaHeart className="text-red-600 text-lg hover:scale-110 transition" />
+    </button>
+
+  </div>
+
+))}
+
+            </div>
+
+          )}
+
         </div>
+      )}
+
+    </div>
+
+    {/* Settings */}
+  
+    <button
+      onClick={() => setShowSettings((s) => !s)}
+      aria-label="Open theme settings"
+      className="theme-card theme-border flex h-11 w-11 items-center justify-center rounded-full border shadow-sm hover:opacity-80"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+    </button>
+    
+
+
+  </div>
+</div>
 
         {/* Settings palette dropdown */}
         {showSettings && (
@@ -244,6 +385,21 @@ export default function App() {
             {movies.map((m) => (
               <button key={m.id} onClick={() => openMovie(m.id)} className="group text-left">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-black/10">
+                <button
+  onClick={(e) => {
+    e.stopPropagation();
+    toggleFavorite(m);
+  }}
+  className="absolute bottom-2 right-2 z-20"
+>
+  <FaHeart
+    className={`text-2xl drop-shadow-lg transition ${
+      favorites.some((f) => f.id === m.id)
+        ? "text-red-600"
+        : "text-white hover:text-red-400"
+    }`}
+  />
+</button>
                   {m.poster_path ? (
                     <img
                       src={posterUrl(m.poster_path)}
