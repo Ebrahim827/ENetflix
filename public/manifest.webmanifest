@@ -1,0 +1,21 @@
+{
+  "name": "ENetflix",
+  "short_name": "ENetflix",
+  "description": "AI-powered movie recommendation platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#E50914",
+  "icons": [
+    {
+      "src": "/enetflix192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/enetflix512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
